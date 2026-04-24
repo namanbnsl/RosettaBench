@@ -8,7 +8,7 @@
 |---|---|
 | 📄 **Writeup** | [kaggle.com/competitions/kaggle-measuring-agi/writeups/rosettabench](https://kaggle.com/competitions/kaggle-measuring-agi/writeups/rosettabench) |
 | 📊 **Benchmark** | [kaggle.com/benchmarks/namanbnsl/rosetta](https://kaggle.com/benchmarks/namanbnsl/rosetta) |
-| 🗂️ **Dataset** | [kaggle.com/datasets/namanbnsl/rosettabench-150-stratified-compressed](https://kaggle.com/datasets/namanbnsl/rosettabench-150-stratified-compressed) |
+| 🗂️ **Dataset** | [Kaggle](https://kaggle.com/datasets/namanbnsl/rosettabench-150-stratified-compressed) · [Hugging Face](https://huggingface.co/datasets/namanbnsl/rosettabench-150-stratified-compressed) |
 
 ## The Problem
 
