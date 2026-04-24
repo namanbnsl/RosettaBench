@@ -1,3 +1,5 @@
+![RosettaBench Banner](assets/thumbnail.png)
+
 # 🪨 RosettaBench
 
 > **A contamination-free benchmark for measuring learning, not memorization.**
@@ -127,6 +129,12 @@ Only STDIN/STDOUT problems with ≥ 3 test cases were included.
 
 > 🏆 **Gemini 3.1 Pro Preview and Gemini 3 Flash Preview are the only models with learning tax under 15%** (7% and 10.3% respectively). Every other model loses at least 40 percentage points.
 
+![Overall Results Chart](assets/charts/chart_core_vs_baseline.png)
+
+![Learning Tax](assets/charts/chart_learning_tax.png)
+ 
+![Cost Performance](assets/charts/chart_cost_performance.png)
+
 ### Per-Difficulty Breakdown (Core)
 
 | Model | Easy (40) | Medium (50) | Hard (60) |
@@ -148,6 +156,8 @@ Only STDIN/STDOUT problems with ≥ 3 test cases were included.
 | Gemma 3 27B | 12% | 0% | 0% |
 | GPT-5.4 Nano | 2% | 0% | 0% |
 
+![Per-Difficulty Breakdown Chart](assets/charts/chart_difficulty_analysis.png)
+
 ---
 
 ## Key Insights
@@ -157,6 +167,10 @@ Only STDIN/STDOUT problems with ≥ 3 test cases were included.
 
 ### Failure modes
 `PYTHON_LEAK` is the dominant failure mode across 14 of 16 models. Most models abandon the synthetic language and fall back on Python tokens — the clearest signal of memorisation over learning. `SYNTAX_ERROR` dominates for Gemini 2.5 Pro (68/150) and Claude Haiku 4.5 (33/150): these models attempt the synthetic language but fail to internalize its structure. `RUNTIME_ERROR` and `WRONG_ANSWER` are more evenly distributed and reflect algorithmic failures rather than language-acquisition failures.
+
+![Failure Modes Chart](assets/charts/chart_failure_modes.png)
+
+![Failure Mode Table](assets/charts/failure_mode_table.png)
 
 ### Memorisers assume, Learners adapt
 Problem `abc357_b` required uppercase conversion, but the few-shot example pairs only demonstrated `.lower()`. Every model except Gemini 3 Flash Preview and Gemini 3.1 Pro Preview hallucinated a `.upper()` token. The two exceptions used `.lower()` with a character map, staying within the demonstrated vocabulary.
