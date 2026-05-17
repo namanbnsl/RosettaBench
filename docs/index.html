@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,8 @@
   <title>RosettaBench — Measuring Learning, Not Memorisation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --paper:   #faf8f4;
@@ -23,6 +25,8 @@
       --teal-lt: #e4f1ef;
       --gold:    #b5860d;
       --gold-lt: #fdf4dc;
+      --blue:    #2563eb;
+      --blue-lt: #eff6ff;
       --rule:    #ddd8cf;
       --rule2:   #e8e4dc;
       --serif:   'Lora', Georgia, serif;
@@ -54,31 +58,25 @@
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--rule);
     }
-
     .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
-
     .nav-mark {
       width: 28px; height: 28px; background: var(--ink); border-radius: 3px;
       display: grid; place-items: center;
     }
     .nav-mark span { font-family: var(--mono); font-size: .58rem; color: var(--paper); font-weight: 500; }
-
     .nav-name { font-family: var(--serif); font-size: 1rem; font-weight: 600; color: var(--ink); }
-
-    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
     .nav-links a {
       font-size: .83rem; font-weight: 500; color: var(--ink3);
       text-decoration: none; transition: color .15s;
     }
     .nav-links a:hover { color: var(--ink); }
-
     .nav-cta {
       background: var(--ink); color: var(--paper) !important;
-      padding: .42rem 1rem; border-radius: 4px;
-      font-weight: 600 !important; font-size: .8rem !important;
-      transition: background .15s !important;
+      padding: .4rem 1rem; border-radius: 4px;
+      font-weight: 600 !important;
     }
-    .nav-cta:hover { background: var(--ink2) !important; }
+    .nav-cta:hover { opacity: .85; }
 
     /* HERO */
     .hero {
@@ -88,7 +86,6 @@
       grid-template-columns: 55% 45%;
       position: relative;
     }
-
     .hero::before {
       content: '';
       position: absolute; top: 56px; left: 0; right: 0; bottom: 0; pointer-events: none;
@@ -98,41 +95,34 @@
       );
       opacity: .4;
     }
-
     .hero-left {
       display: flex; flex-direction: column; justify-content: center;
       padding: 7rem 4.5rem 7rem 5.5rem;
       position: relative; z-index: 1;
       border-right: 1px solid var(--rule);
     }
-
     .eyebrow { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.75rem; }
-
     .pill {
       font-family: var(--mono); font-size: .66rem; letter-spacing: .06em;
       text-transform: uppercase; padding: .28rem .65rem; border-radius: 2px;
     }
     .pill-a { background: var(--paper3); color: var(--ink3); }
     .pill-b { background: var(--gold-lt); color: var(--gold); }
-
     h1 {
       font-family: var(--serif);
-      font-size: clamp(2.6rem, 4vw, 4.2rem);
+      font-size: clamp(2.4rem, 3.8vw, 4rem);
       font-weight: 700; line-height: 1.08;
       letter-spacing: -.025em; margin-bottom: 1.5rem;
     }
     h1 .red-it { color: var(--red); font-style: italic; }
-
     .hero-blurb {
       font-size: 1rem; color: var(--ink2); font-weight: 300;
       line-height: 1.8; max-width: 460px; margin-bottom: 2.25rem;
     }
-
     .meta-row {
       display: flex; gap: 2.5rem; margin-bottom: 2.25rem;
       padding-bottom: 2rem; border-bottom: 1px solid var(--rule);
     }
-
     .m-stat { display: flex; flex-direction: column; gap: .15rem; }
     .m-num {
       font-family: var(--serif); font-size: 2rem; font-weight: 700;
@@ -142,54 +132,59 @@
       font-family: var(--mono); font-size: .6rem; color: var(--ink4);
       letter-spacing: .1em; text-transform: uppercase;
     }
-
     .hero-btns { display: flex; gap: .7rem; flex-wrap: wrap; }
-
     .btn {
       font-size: .82rem; font-weight: 600; padding: .62rem 1.2rem;
       border-radius: 4px; text-decoration: none;
       transition: all .15s; display: inline-flex; align-items: center; gap: .4rem;
+      cursor: pointer; border: none;
     }
     .btn-ink { background: var(--ink); color: var(--paper); }
     .btn-ink:hover { background: var(--ink2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,24,20,.15); }
-    .btn-out { border: 1.5px solid var(--rule); color: var(--ink2); }
+    .btn-out { border: 1.5px solid var(--rule); color: var(--ink2); background: transparent; }
     .btn-out:hover { border-color: var(--ink); color: var(--ink); transform: translateY(-1px); }
     .btn-tl { background: var(--teal-lt); color: var(--teal); border: 1px solid rgba(42,124,111,.2); }
     .btn-tl:hover { background: #d0e9e5; transform: translateY(-1px); }
-
     .hero-right {
       background: var(--paper2);
       display: flex; flex-direction: column; justify-content: center;
       padding: 5rem 3.5rem; position: relative; z-index: 1;
     }
-
-    .img-frame {
+    .code-card {
       border: 1px solid var(--rule); border-radius: 5px;
       overflow: hidden; box-shadow: var(--shadow2); margin-bottom: .9rem;
+      background: #1e1c19;
     }
-    .img-frame img { width: 100%; display: block; }
-
+    .code-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .6rem 1rem; border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .code-dots { display: flex; gap: .4rem; }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .code-label { font-family: var(--mono); font-size: .65rem; color: rgba(255,255,255,.35); }
+    .code-body { padding: 1.1rem 1.2rem; font-family: var(--mono); font-size: .72rem; line-height: 1.8; }
+    .code-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .code-col-label { font-family: var(--mono); font-size: .6rem; color: rgba(255,255,255,.3); margin-bottom: .4rem; }
+    .code-python { color: #a8d8a8; }
+    .code-synth { color: #f5c97a; }
     .img-cap {
       font-family: var(--mono); font-size: .66rem;
       color: var(--ink4); text-align: center; line-height: 1.5; margin-bottom: 2rem;
     }
-
     .fi-list { display: flex; flex-direction: column; gap: .65rem; }
-
     .fi-row {
       display: flex; gap: .9rem; align-items: flex-start;
       padding: .85rem 1rem; background: var(--paper);
       border: 1px solid var(--rule); border-radius: 4px;
     }
-
     .fi-badge {
       width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%;
       display: grid; place-items: center;
-      font-family: var(--mono); font-size: .62rem; font-weight: 500;
+      font-family: var(--mono); font-size: .62rem; font-weight: 500; line-height: 1;
     }
     .fi-r { background: var(--red-lt); color: var(--red); }
     .fi-g { background: var(--gold-lt); color: var(--gold); }
-
+    .fi-t { background: var(--teal-lt); color: var(--teal); }
     .fi-row p { font-size: .84rem; color: var(--ink2); line-height: 1.55; font-weight: 300; }
     .fi-row strong { font-weight: 600; color: var(--ink); }
 
@@ -198,213 +193,250 @@
     .container { max-width: 1100px; margin: 0 auto; padding: 0 4rem; }
     .sp { padding: 5.5rem 0; }
 
-    .sh { margin-bottom: 3rem; }
-    .sn { font-family: var(--mono); font-size: .66rem; color: var(--ink4); letter-spacing: .12em; margin-bottom: .55rem; }
-
+    .sec-label {
+      font-family: var(--mono); font-size: .65rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--ink4); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .sec-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--rule);
+    }
     h2 {
-      font-family: var(--serif);
-      font-size: clamp(1.8rem, 2.4vw, 2.5rem);
-      font-weight: 700; line-height: 1.12; letter-spacing: -.02em; margin-bottom: .65rem;
+      font-family: var(--serif); font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      font-weight: 700; line-height: 1.15; letter-spacing: -.02em; margin-bottom: .9rem;
     }
-    .sl { font-size: 1rem; color: var(--ink3); max-width: 580px; line-height: 1.75; font-weight: 300; }
-
-    /* OVERVIEW */
-    .ov-bg { background: var(--paper); }
-
-    .ov-grid { display: grid; grid-template-columns: 1fr 1.7fr; gap: 6rem; align-items: start; }
-    .ov-sticky { position: sticky; top: 76px; }
-
-    .kf-list { display: flex; flex-direction: column; gap: .85rem; margin-top: 1.5rem; }
-
-    .kf-row {
-      display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start;
-      padding: 1rem 1.1rem; border: 1px solid var(--rule);
-      border-radius: 4px; background: var(--paper2);
+    h3 {
+      font-family: var(--serif); font-size: 1.15rem; font-weight: 600;
+      line-height: 1.3; margin-bottom: .5rem;
     }
-    .kf-id { font-family: var(--mono); font-size: .62rem; color: var(--red); padding-top: .15rem; }
-    .kf-row p { font-size: .85rem; color: var(--ink2); line-height: 1.6; font-weight: 300; }
-
-    .body-text p { color: var(--ink2); line-height: 1.85; margin-bottom: 1.2rem; font-weight: 300; }
-    .body-text p:last-child { margin-bottom: 0; }
-    .body-text strong { font-weight: 600; color: var(--ink); }
-
-    .pq {
-      border-left: 3px solid var(--red); padding: 1.15rem 1.4rem;
-      background: var(--red-lt); margin: 1.75rem 0; border-radius: 0 4px 4px 0;
-    }
-    .pq p { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--ink); line-height: 1.65; }
-    .pq cite { display: block; font-family: var(--mono); font-size: .65rem; color: var(--red); margin-top: .5rem; font-style: normal; letter-spacing: .04em; }
-
-    code {
-      font-family: var(--mono); font-size: .82em;
-      background: var(--paper3); color: var(--teal);
-      padding: .08em .42em; border-radius: 3px; border: 1px solid var(--rule2);
+    .lead {
+      font-size: 1rem; color: var(--ink2); font-weight: 300;
+      line-height: 1.8; max-width: 680px; margin-bottom: 2.5rem;
     }
 
     /* METHOD */
-    .me-bg { background: var(--paper2); }
-
-    .mc-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.1rem; margin-bottom: 2.5rem; }
-
-    .mc {
-      padding: 1.7rem; background: var(--paper);
-      border: 1px solid var(--rule); border-radius: 6px;
-      transition: box-shadow .2s;
+    .method-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 2rem;
     }
-    .mc:hover { box-shadow: var(--shadow2); }
-    .mc-step { font-family: var(--mono); font-size: .63rem; color: var(--ink4); letter-spacing: .1em; margin-bottom: .5rem; }
-    .mc-t { font-family: var(--serif); font-size: 1.03rem; font-weight: 600; color: var(--ink); margin-bottom: .55rem; }
-    .mc-b { font-size: .875rem; color: var(--ink3); line-height: 1.65; font-weight: 300; }
-
-    .oc-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: .55rem; }
-
-    .oc {
-      padding: .85rem .65rem; border-radius: 4px; border: 1px solid;
-      display: flex; flex-direction: column; gap: .25rem; text-align: center;
+    .method-card {
+      border: 1px solid var(--rule); border-radius: 5px; padding: 1.6rem;
+      background: var(--paper);
     }
-    .oc-code { font-family: var(--mono); font-size: .6rem; font-weight: 500; letter-spacing: .03em; }
-    .oc-desc { font-size: .72rem; line-height: 1.4; font-weight: 300; }
+    .method-num {
+      font-family: var(--mono); font-size: .65rem; color: var(--ink4);
+      letter-spacing: .08em; margin-bottom: .9rem;
+    }
+    .method-card p { font-size: .88rem; color: var(--ink2); line-height: 1.7; font-weight: 300; }
+    .method-card strong { font-weight: 600; color: var(--ink); }
 
-    .oc-p  { background: #edf7f1; border-color: #b6dfc9; }
-    .oc-p .oc-code { color: #1e7a46; } .oc-p .oc-desc { color: #3a6b50; }
-    .oc-l  { background: var(--red-lt); border-color: #f0bfbb; }
-    .oc-l .oc-code { color: var(--red); } .oc-l .oc-desc { color: #7a3530; }
-    .oc-s  { background: #fef3e2; border-color: #f5d79b; }
-    .oc-s .oc-code { color: #a06e10; } .oc-s .oc-desc { color: #7a5a20; }
-    .oc-r  { background: #f0edfa; border-color: #cdc4ef; }
-    .oc-r .oc-code { color: #5b4baa; } .oc-r .oc-desc { color: #4a3d7a; }
-    .oc-w  { background: #e8f0fc; border-color: #a8c0ef; }
-    .oc-w .oc-code { color: #2255aa; } .oc-w .oc-desc { color: #344466; }
-    .oc-n  { background: var(--paper3); border-color: var(--rule); }
-    .oc-n .oc-code { color: var(--ink3); } .oc-n .oc-desc { color: var(--ink4); }
+    /* OUTCOME CODES */
+    .outcomes-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .75rem; margin-top: 1.5rem;
+    }
+    .outcome-pill {
+      display: flex; align-items: flex-start; gap: .75rem;
+      padding: .9rem 1rem; border: 1px solid var(--rule); border-radius: 4px;
+    }
+    .oc-badge {
+      font-family: var(--mono); font-size: .6rem; padding: .2rem .5rem;
+      border-radius: 2px; font-weight: 500; flex-shrink: 0; margin-top: .1rem;
+    }
+    .oc-pass { background: var(--teal-lt); color: var(--teal); }
+    .oc-nocode { background: var(--paper3); color: var(--ink3); }
+    .oc-leak { background: var(--red-lt); color: var(--red); }
+    .oc-syntax { background: var(--gold-lt); color: var(--gold); }
+    .oc-runtime { background: var(--blue-lt); color: var(--blue); }
+    .oc-wa { background: var(--paper3); color: var(--ink2); }
+    .oc-text { font-size: .82rem; color: var(--ink2); line-height: 1.5; font-weight: 300; }
+    .oc-text strong { font-weight: 600; color: var(--ink); font-size: .8rem; display: block; margin-bottom: .15rem; }
 
-    /* RESULTS */
-    .re-bg { background: var(--paper); }
-
-    .ch { margin-bottom: 3.5rem; }
-    .ch:last-child { margin-bottom: 0; }
-
-    .fig { font-family: var(--mono); font-size: .63rem; color: var(--ink4); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .3rem; }
-
-    .ct { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; color: var(--ink); margin-bottom: .4rem; }
-
-    .cc { font-size: .875rem; color: var(--ink3); line-height: 1.65; max-width: 700px; font-weight: 300; margin-bottom: 1.1rem; }
-
-    .cw { border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; background: #fff; box-shadow: var(--shadow); }
-    .cw img { width: 100%; display: block; }
-
-    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    /* CHARTS */
+    .charts-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; margin-top: 2rem;
+    }
+    .chart-card {
+      border: 1px solid var(--rule); border-radius: 5px; padding: 1.6rem;
+      background: var(--paper);
+    }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-title {
+      font-family: var(--serif); font-size: .95rem; font-weight: 600;
+      margin-bottom: .3rem; color: var(--ink);
+    }
+    .chart-sub {
+      font-size: .78rem; color: var(--ink3); margin-bottom: 1.2rem; font-weight: 300;
+    }
+    .chart-wrap { position: relative; }
 
     /* LEADERBOARD */
-    .lb-bg { background: var(--paper2); }
-
-    .tw { border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); }
-
-    table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: .79rem; }
-
-    thead { background: var(--paper3); }
-    thead th {
-      padding: .82rem 1.1rem; text-align: left;
-      font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--ink3); font-weight: 500; border-bottom: 1px solid var(--rule);
+    .lb-controls {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;
     }
-
-    tbody tr { border-bottom: 1px solid var(--rule2); background: var(--paper); transition: background .1s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--paper2); }
-    tbody tr.r1 { background: #fdf9f0; }
-
-    td { padding: .72rem 1.1rem; color: var(--ink3); white-space: nowrap; }
-    td.rk { color: var(--ink4); font-size: .7rem; }
-    td.mn { font-family: var(--sans); font-weight: 500; font-size: .84rem; color: var(--ink); }
-    tr.r1 td.mn { color: var(--red); }
-    td.sc { font-weight: 500; color: var(--ink); }
-
-    .tg { color: #1e7a46; font-weight: 500; }
-    .tm { color: var(--gold); font-weight: 500; }
-    .tb { color: var(--red); font-weight: 500; }
+    .lb-sort-label {
+      font-family: var(--mono); font-size: .65rem; color: var(--ink4);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .sort-btn {
+      font-family: var(--mono); font-size: .65rem; padding: .3rem .7rem;
+      border-radius: 3px; border: 1px solid var(--rule);
+      background: var(--paper); color: var(--ink3);
+      cursor: pointer; transition: all .15s;
+    }
+    .sort-btn:hover, .sort-btn.active {
+      background: var(--ink); color: var(--paper); border-color: var(--ink);
+    }
+    .lb-table-wrap {
+      border: 1px solid var(--rule); border-radius: 5px; overflow: hidden;
+    }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: .83rem;
+    }
+    thead {
+      background: var(--paper2);
+      border-bottom: 1px solid var(--rule);
+    }
+    th {
+      text-align: left; padding: .75rem 1rem;
+      font-family: var(--mono); font-size: .63rem;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: var(--ink4); font-weight: 500;
+      cursor: pointer; user-select: none; white-space: nowrap;
+      transition: color .12s;
+    }
+    th:hover { color: var(--ink2); }
+    th.sorted { color: var(--ink); }
+    th .sort-arrow { margin-left: .3rem; opacity: .5; }
+    th.sorted .sort-arrow { opacity: 1; }
+    td {
+      padding: .75rem 1rem; border-bottom: 1px solid var(--rule2);
+      color: var(--ink2); vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--paper2); }
+    .rank-cell {
+      font-family: var(--mono); font-size: .7rem;
+      color: var(--ink4); width: 40px;
+    }
+    .rank-1 { color: var(--gold); font-weight: 600; }
+    .rank-2 { color: var(--ink3); font-weight: 600; }
+    .rank-3 { color: #a0522d; font-weight: 600; }
+    .model-cell { font-weight: 500; color: var(--ink); }
+    .score-cell { font-family: var(--mono); font-size: .82rem; }
+    .score-bar-wrap { display: flex; align-items: center; gap: .6rem; }
+    .score-bar {
+      height: 4px; border-radius: 2px; flex-shrink: 0;
+      transition: width .3s ease;
+    }
+    .bar-core { background: var(--teal); }
+    .bar-base { background: var(--ink3); }
+    .tax-cell { font-family: var(--mono); font-size: .8rem; }
+    .tax-low { color: var(--teal); font-weight: 600; }
+    .tax-mid { color: var(--gold); }
+    .tax-high { color: var(--red); }
+    .cost-cell { font-family: var(--mono); font-size: .75rem; color: var(--ink3); }
+    .badge-top2 {
+      display: inline-block; background: var(--teal-lt); color: var(--teal);
+      font-family: var(--mono); font-size: .58rem; padding: .15rem .5rem;
+      border-radius: 2px; margin-left: .4rem; vertical-align: middle;
+    }
 
     /* INSIGHTS */
-    .in-bg { background: var(--paper); }
-    .in-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
-
-    .ic {
-      padding: 1.7rem; border: 1px solid var(--rule);
-      border-radius: 6px; background: var(--paper2); transition: box-shadow .2s;
+    .insights-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; margin-top: 2rem;
     }
-    .ic:hover { box-shadow: var(--shadow2); }
-    .ic.ft { grid-column: 1 / -1; background: var(--paper); border-left: 4px solid var(--red); }
-
-    .ic-tag { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .65rem; }
-    .ic.ft .ic-tag { color: var(--red); }
-    .ic:not(.ft) .ic-tag { color: var(--ink4); }
-
-    .ic-t { font-family: var(--serif); font-size: 1.07rem; font-weight: 600; color: var(--ink); margin-bottom: .55rem; }
-    .ic-b { font-size: .875rem; color: var(--ink3); line-height: 1.7; font-weight: 300; }
-
-    /* RESOURCES */
-    .rs-bg { background: var(--paper2); }
-    .rs-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.1rem; margin-bottom: 2rem; }
-
-    .rc {
-      text-decoration: none; display: flex; flex-direction: column;
-      padding: 1.5rem; border: 1px solid var(--rule);
-      border-radius: 6px; background: var(--paper); transition: all .18s;
+    .insight-card {
+      border: 1px solid var(--rule); border-radius: 5px; padding: 1.6rem;
+      background: var(--paper);
     }
-    .rc:hover { border-color: var(--ink); box-shadow: var(--shadow2); transform: translateY(-2px); }
-    .rc-pl { font-family: var(--mono); font-size: .62rem; color: var(--ink4); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .5rem; }
-    .rc-t { font-family: var(--serif); font-size: 1.03rem; font-weight: 600; color: var(--ink); margin-bottom: .45rem; }
-    .rc-d { font-size: .83rem; color: var(--ink3); line-height: 1.6; font-weight: 300; flex: 1; }
-    .rc-ar { margin-top: .9rem; font-family: var(--mono); font-size: .72rem; color: var(--red); }
+    .insight-tag {
+      font-family: var(--mono); font-size: .62rem; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--ink4); margin-bottom: .75rem;
+    }
+    .insight-card p {
+      font-size: .88rem; color: var(--ink2); line-height: 1.7; font-weight: 300;
+    }
+    .insight-card strong { font-weight: 600; color: var(--ink); }
+    .insight-card em { font-style: italic; color: var(--ink3); }
+    .callout {
+      border-left: 3px solid var(--teal); padding: 1rem 1.25rem;
+      background: var(--teal-lt); border-radius: 0 4px 4px 0;
+      margin-top: 2rem;
+    }
+    .callout p { font-size: .9rem; color: var(--ink2); line-height: 1.7; font-weight: 300; }
+    .callout strong { color: var(--teal); font-weight: 600; }
 
-    .cite-block { padding: 1.4rem 1.75rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); }
-    .cite-label { font-family: var(--mono); font-size: .62rem; color: var(--ink4); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .65rem; }
-    .cite-text { font-family: var(--mono); font-size: .79rem; color: var(--ink2); line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
+    /* DATASET */
+    .dataset-cols {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; margin-top: 1.5rem;
+    }
+    .ds-table-wrap {
+      border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+    }
+    .ds-table { font-size: .82rem; }
+    .ds-table th { font-size: .6rem; background: var(--paper2); }
+    .ds-table td { font-size: .82rem; }
+    .ds-stat-grid {
+      display: flex; flex-direction: column; gap: .75rem;
+    }
+    .ds-stat {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .85rem 1rem; border: 1px solid var(--rule); border-radius: 4px;
+    }
+    .ds-stat-label { font-size: .84rem; color: var(--ink2); font-weight: 300; }
+    .ds-stat-val { font-family: var(--mono); font-size: .9rem; font-weight: 500; color: var(--ink); }
+    .diff-row { display: flex; gap: .5rem; margin-top: .5rem; }
+    .diff-pill {
+      font-family: var(--mono); font-size: .65rem; padding: .25rem .6rem;
+      border-radius: 2px;
+    }
+    .diff-easy { background: var(--teal-lt); color: var(--teal); }
+    .diff-med { background: var(--gold-lt); color: var(--gold); }
+    .diff-hard { background: var(--red-lt); color: var(--red); }
+
+    /* REFERENCES */
+    .refs-list { list-style: none; display: flex; flex-direction: column; gap: .9rem; margin-top: 1.5rem; }
+    .refs-list li {
+      display: flex; gap: 1rem; align-items: flex-start;
+      padding: .9rem 1rem; border: 1px solid var(--rule); border-radius: 4px;
+    }
+    .ref-num {
+      font-family: var(--mono); font-size: .65rem; color: var(--ink4);
+      padding: .15rem .4rem; background: var(--paper3); border-radius: 2px;
+      flex-shrink: 0; margin-top: .1rem;
+    }
+    .ref-text { font-size: .83rem; color: var(--ink2); line-height: 1.6; font-weight: 300; }
+    .ref-text a { color: var(--teal); text-decoration: none; }
+    .ref-text a:hover { text-decoration: underline; }
 
     /* FOOTER */
-    footer { border-top: 1px solid var(--rule); background: var(--paper3); padding: 2.25rem 0; }
-
-    .ft-in { display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
-
-    .ft-brand strong { font-family: var(--serif); font-size: 1rem; font-weight: 600; color: var(--ink); display: block; margin-bottom: .2rem; }
-    .ft-brand span { font-family: var(--mono); font-size: .68rem; color: var(--ink4); }
-
-    .ft-refs { font-family: var(--mono); font-size: .67rem; color: var(--ink4); text-align: right; line-height: 1.9; }
-    .ft-refs a { color: var(--ink3); text-decoration: none; transition: color .15s; }
-    .ft-refs a:hover { color: var(--red); }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 2rem 4rem;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .hero-left > * { animation: fadeUp .65s ease both; }
-    .hero-left > *:nth-child(1) { animation-delay: .05s; }
-    .hero-left > *:nth-child(2) { animation-delay: .15s; }
-    .hero-left > *:nth-child(3) { animation-delay: .25s; }
-    .hero-left > *:nth-child(4) { animation-delay: .35s; }
-    .hero-left > *:nth-child(5) { animation-delay: .42s; }
-    .hero-right { animation: fadeUp .8s .28s ease both; }
+    .footer-brand { font-family: var(--serif); font-size: .9rem; color: var(--ink3); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: .8rem; color: var(--ink4); text-decoration: none; }
+    .footer-links a:hover { color: var(--ink2); }
 
     /* RESPONSIVE */
-    @media (max-width: 960px) {
-      nav { padding: 0 1.5rem; }
-      .nav-links { display: none; }
+    @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; }
-      .hero-left { padding: 5rem 2rem 3rem; border-right: none; border-bottom: 1px solid var(--rule); }
-      .hero-right { padding: 2.5rem 2rem 4rem; }
-      .container { padding: 0 1.5rem; }
-      .sp { padding: 4rem 0; }
-      .ov-grid { grid-template-columns: 1fr; gap: 3rem; }
-      .ov-sticky { position: static; }
-      .mc-grid { grid-template-columns: 1fr; }
-      .oc-grid { grid-template-columns: repeat(2,1fr); }
-      .two { grid-template-columns: 1fr; }
-      .in-grid { grid-template-columns: 1fr; }
-      .ic.ft { grid-column: 1; }
-      .rs-grid { grid-template-columns: 1fr; }
-      .ft-in { flex-direction: column; align-items: flex-start; }
-      .ft-refs { text-align: left; }
+      .hero-right { display: none; }
+      .hero-left { padding: 5rem 2rem 4rem; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .insights-grid { grid-template-columns: 1fr; }
+      .dataset-cols { grid-template-columns: 1fr; }
+      nav { padding: 0 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      .container { padding: 0 2rem; }
+      footer { flex-direction: column; gap: 1rem; padding: 2rem; }
     }
   </style>
 </head>
@@ -418,329 +450,702 @@
   </a>
   <ul class="nav-links">
     <li><a href="#overview">Overview</a></li>
-    <li><a href="#methodology">Method</a></li>
+    <li><a href="#method">Method</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#leaderboard">Leaderboard</a></li>
-    <li><a href="https://kaggle.com/benchmarks/namanbnsl/rosetta" target="_blank" class="nav-cta">↗ Kaggle</a></li>
+    <li><a href="https://kaggle.com/competitions/kaggle-measuring-agi/writeups/rosettabench" target="_blank" class="nav-cta">↗ Kaggle</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
-<header class="hero">
+<section id="overview" class="hero">
   <div class="hero-left">
     <div class="eyebrow">
       <span class="pill pill-a">LLM Benchmark</span>
       <span class="pill pill-b">2026</span>
     </div>
-    <h1>Measuring<br /><span class="red-it">learning,</span><br />not memorisation.</h1>
-    <p class="hero-blurb">RosettaBench evaluates whether LLMs can acquire new knowledge in context — by requiring them to solve AtCoder problems in procedurally generated synthetic programming languages they have never seen before.</p>
+    <h1>Measuring <span class="red-it">learning,</span><br>not memorisation.</h1>
+    <p class="hero-blurb">
+      RosettaBench evaluates whether LLMs can acquire new knowledge in context — by requiring them to solve AtCoder problems in procedurally generated synthetic programming languages they have never seen before.
+    </p>
     <div class="meta-row">
-      <div class="m-stat"><span class="m-num">16</span><span class="m-lbl">Models Tested</span></div>
-      <div class="m-stat"><span class="m-num">150</span><span class="m-lbl">Problems</span></div>
-      <div class="m-stat"><span class="m-num">88%</span><span class="m-lbl">Top Score</span></div>
-      <div class="m-stat"><span class="m-num">0%</span><span class="m-lbl">LLM Judges</span></div>
+      <div class="m-stat">
+        <span class="m-num">16</span>
+        <span class="m-lbl">Models Tested</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-num">150</span>
+        <span class="m-lbl">Problems</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-num">88%</span>
+        <span class="m-lbl">Top Score</span>
+      </div>
+      <div class="m-stat">
+        <span class="m-num">0%</span>
+        <span class="m-lbl">LLM Judges</span>
+      </div>
     </div>
     <div class="hero-btns">
-      <a class="btn btn-ink" href="https://kaggle.com/benchmarks/namanbnsl/rosetta" target="_blank">↗ View on Kaggle</a>
-      <a class="btn btn-tl" href="https://huggingface.co/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank">Dataset on HF</a>
-      <a class="btn btn-out" href="#results">See Results ↓</a>
+      <a href="https://kaggle.com/competitions/kaggle-measuring-agi/writeups/rosettabench" target="_blank" class="btn btn-ink">↗ View on Kaggle</a>
+      <a href="https://huggingface.co/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank" class="btn btn-tl">Dataset on HF</a>
+      <a href="#results" class="btn btn-out">See Results ↓</a>
     </div>
   </div>
-
   <div class="hero-right">
-    <div class="img-frame">
-      <img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/thumbnail.png" alt="Python source on one stone tablet, synthetic equivalent on another" />
+    <div class="code-card">
+      <div class="code-card-header">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#ff5f57"></div>
+          <div class="code-dot" style="background:#febc2e"></div>
+          <div class="code-dot" style="background:#28c840"></div>
+        </div>
+        <span class="code-label">Per-problem language remapping</span>
+      </div>
+      <div class="code-body">
+        <div class="code-row">
+          <div>
+            <div class="code-col-label"># Python</div>
+            <div class="code-python">def solve(n, items):<br>&nbsp;&nbsp;for i in range(n):<br>&nbsp;&nbsp;&nbsp;&nbsp;if items[i] == "*":<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return i<br>&nbsp;&nbsp;return -1<br><br>result = []<br>result.append(solve(n, a))<br>print(" ".join(result))</div>
+          </div>
+          <div>
+            <div class="code-col-label"># Synthetic</div>
+            <div class="code-synth">spimgleox solve(n, items)==><br>&nbsp;&nbsp;zloumfráit i kraum streix(n)=><br>&nbsp;&nbsp;&nbsp;&nbsp;vraith items[i] ~~"*"=><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shesstrim i<br>&nbsp;&nbsp;shesstrim -1<br><br>result = []<br>result.straumjeim(solve(n, a))<br>kroumspor(" ".skauk(result))</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <p class="img-cap">Python → Synthetic language remapping. Every problem gets a unique vocabulary.</p>
+    <div class="img-cap">Python → Synthetic language mapping. Every problem gets a unique vocabulary.</div>
     <div class="fi-list">
       <div class="fi-row">
         <div class="fi-badge fi-r">01</div>
         <p>Only <strong>2 of 16 models</strong> achieve a Learning Tax under 15% — the threshold for genuine in-context learning.</p>
       </div>
       <div class="fi-row">
-        <div class="fi-badge fi-r">02</div>
+        <div class="fi-badge fi-g">02</div>
         <p><strong>PYTHON_LEAK</strong> dominates 14 of 16 models — the clearest signal of memorisation over learning.</p>
       </div>
       <div class="fi-row">
-        <div class="fi-badge fi-g">03</div>
+        <div class="fi-badge fi-t">03</div>
         <p>High Python baseline ≠ low Learning Tax. GPT-5.4 Nano scores <strong>70%</strong> in Python but just <strong>0.7%</strong> on core.</p>
       </div>
     </div>
   </div>
-</header>
+</section>
 
-<!-- OVERVIEW -->
-<section class="ov-bg" id="overview">
+<!-- METHOD -->
+<section id="method">
   <div class="container sp">
-    <div class="ov-grid">
-      <div class="ov-sticky">
-        <div class="sh">
-          <div class="sn">§ 1 — Overview</div>
-          <h2>Why RosettaBench?</h2>
-        </div>
-        <div class="kf-list">
-          <div class="kf-row">
-            <span class="kf-id">F1</span>
-            <p>Only Gemini 3.1 Pro Preview (7.0%) and Gemini 3 Flash Preview (10.3%) clear the 15% learning threshold. Every other model loses at least 28 percentage points.</p>
-          </div>
-          <div class="kf-row">
-            <span class="kf-id">F2</span>
-            <p>PYTHON_LEAK is the dominant failure mode in 14 of 16 models — models don't simply fail, they revert to pre-trained vocabulary.</p>
-          </div>
-          <div class="kf-row">
-            <span class="kf-id">F3</span>
-            <p>Hard problems (60) expose the real gap. 11 of 16 models score under 10%, as they demand simultaneous language acquisition and algorithmic reasoning.</p>
-          </div>
-          <div class="kf-row">
-            <span class="kf-id">F4</span>
-            <p>No LLM judge is used anywhere. Correctness is determined exclusively by test case pass/fail — making the benchmark fully objective and reproducible.</p>
-          </div>
-        </div>
+    <div class="sec-label">Method</div>
+    <h2>How RosettaBench works</h2>
+    <p class="lead">A fully deterministic, LLM-judge-free evaluation pipeline. Each problem gets a unique synthetic language — making memorisation structurally impossible.</p>
+
+    <div class="method-grid">
+      <div class="method-card">
+        <div class="method-num">01 — Language Generation</div>
+        <h3>Unique per-problem vocabulary</h3>
+        <p>A synthetic language is generated from a per-problem seed using a syllable-based RNG. The remapping covers all Python vocabulary: <strong>35 keywords, 77 builtins, 55 methods, 25 operators, 4 delimiters</strong>. No two problems share a language.</p>
       </div>
+      <div class="method-card">
+        <div class="method-num">02 — Prompt Construction</div>
+        <h3>6 few-shot example pairs</h3>
+        <p>The model receives <strong>6 in-context examples</strong> pairing synthetic and Python code, followed by the problem statement. It must respond with a <code style="font-family:var(--mono);font-size:.82em;background:var(--paper3);padding:.1em .3em;border-radius:2px">&lt;solution&gt;</code> block written entirely in the synthetic language.</p>
+      </div>
+      <div class="method-card">
+        <div class="method-num">03 — Extraction &amp; Validation</div>
+        <h3>Token-level leak detection</h3>
+        <p>Responses are checked for Python token leaks (<strong>PYTHON_LEAK</strong>). If clean, the code is back-translated to Python for execution. This makes the validation reproducible and removes any subjectivity from judging.</p>
+      </div>
+      <div class="method-card">
+        <div class="method-num">04 — Scoring</div>
+        <h3>All-or-nothing correctness</h3>
+        <p>A problem is correct only if <strong>all test cases pass</strong>. Final score is <code style="font-family:var(--mono);font-size:.82em;background:var(--paper3);padding:.1em .3em;border-radius:2px">passed / total</code>. Learning Tax = baseline − core. <strong>No LLM judge is used at any stage.</strong></p>
+      </div>
+    </div>
 
-      <div class="body-text">
-        <p>LLMs are increasingly evaluated on coding and reasoning tasks, yet existing benchmarks primarily measure <strong>memorised knowledge</strong> — not the ability to learn. Per Google DeepMind's cognitive framework, learning is the ability to acquire new knowledge or skills through experience, study, or instruction. Current evaluations cannot distinguish a model that truly learns from one that merely recalls.</p>
-        <p>Without benchmarks that isolate learning from recall, progress toward AGI cannot be meaningfully measured.</p>
-
-        <div class="pq">
-          <p>"Memorisers assume. Learners adapt. Problem abc357_b required uppercase conversion, but the few-shot examples only demonstrated <code>.lower()</code>. Every model except Gemini 3.1 Pro Preview and Gemini 3 Flash Preview hallucinated a synthetic <code>.upper()</code> token — reverting to Python muscle memory. The two exceptions used <code>.lower()</code> with a character map, staying within the demonstrated vocabulary."</p>
-          <cite>— Key finding, RosettaBench core evaluation</cite>
+    <div style="margin-top: 2.5rem;">
+      <div class="sec-label" style="margin-bottom:1rem">Outcome Codes</div>
+      <div class="outcomes-grid">
+        <div class="outcome-pill">
+          <span class="oc-badge oc-pass">PASS</span>
+          <div class="oc-text"><strong>All tests passed</strong>All test cases produced correct output.</div>
         </div>
-
-        <p>RosettaBench addresses this directly. Each problem is presented in a <strong>unique synthetic programming language</strong> — a fully remapped variant of Python where all keywords, builtins, methods, operators, and delimiters are replaced with invented, pronounceable tokens: <code>def → spimgleox</code>, <code>if → vraith</code>, <code>print → kroumspor</code>.</p>
-        <p>No two problems share a language, eliminating cross-problem memorisation. The model receives 6 few-shot example pairs showing the synthetic language alongside its Python equivalent, then must produce a correct solution in the synthetic language.</p>
-        <p>The <strong>Learning Tax</strong> — defined as baseline score minus core score — quantifies performance loss when familiar Python vocabulary is replaced with a synthetic language. A low learning tax signals genuine in-context language acquisition. A high one signals pre-trained pattern matching.</p>
-        <p>150 AtCoder problems from LiveCodeBench: 40 easy, 50 medium, 60 hard. Only STDIN/STDOUT problems with ≥ 3 test cases. Sampling uses <code>random_state=42</code>; language generation is fully deterministic given a problem seed.</p>
+        <div class="outcome-pill">
+          <span class="oc-badge oc-nocode">NO_CODE</span>
+          <div class="oc-text"><strong>No extractable code</strong>No solution block or fenced code in response.</div>
+        </div>
+        <div class="outcome-pill">
+          <span class="oc-badge oc-leak">PYTHON_LEAK</span>
+          <div class="oc-text"><strong>Language failure</strong>Python tokens found in synthetic code. Dominant failure mode.</div>
+        </div>
+        <div class="outcome-pill">
+          <span class="oc-badge oc-syntax">SYNTAX_ERROR</span>
+          <div class="oc-text"><strong>Structural failure</strong>Back-translated Python failed to compile.</div>
+        </div>
+        <div class="outcome-pill">
+          <span class="oc-badge oc-runtime">RUNTIME_ERROR</span>
+          <div class="oc-text"><strong>Execution failure</strong>Code compiled but crashed at runtime.</div>
+        </div>
+        <div class="outcome-pill">
+          <span class="oc-badge oc-wa">WRONG_ANSWER</span>
+          <div class="oc-text"><strong>Logic failure</strong>Ran correctly but produced incorrect output.</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- METHODOLOGY -->
-<section class="me-bg" id="methodology">
+<!-- DATASET -->
+<section id="dataset">
   <div class="container sp">
-    <div class="sh">
-      <div class="sn">§ 2 — Methodology</div>
-      <h2>How the benchmark works</h2>
-      <p class="sl">Each problem gets its own unique synthetic language, covering all 196 Python vocabulary tokens across 5 categories. Scoring is fully automated — no LLM judge at any stage.</p>
-    </div>
-
-    <div class="mc-grid">
-      <div class="mc">
-        <div class="mc-step">Step 01 · Language Generation</div>
-        <div class="mc-t">Per-problem vocabulary seeding</div>
-        <p class="mc-b">A syllable-based RNG seeded per-problem produces structured, pronounceable synthetic tokens. The remapping covers 35 keywords, 77 builtins, 55 methods, 25 operators, and 4 delimiters. No two problems share any token — preventing cross-problem memorisation.</p>
+    <div class="sec-label">Dataset</div>
+    <h2>150 stratified AtCoder problems</h2>
+    <p class="lead">Sourced from LiveCodeBench <code style="font-family:var(--mono);font-size:.85em;background:var(--paper3);padding:.1em .3em;border-radius:2px">release_v5</code>. Only STDIN/STDOUT problems with ≥ 3 test cases were included. Fully reproducible with <code style="font-family:var(--mono);font-size:.85em;background:var(--paper3);padding:.1em .3em;border-radius:2px">random_state=42</code>.</p>
+    <div class="dataset-cols">
+      <div>
+        <div class="ds-stat-grid">
+          <div class="ds-stat">
+            <span class="ds-stat-label">Total problems</span>
+            <span class="ds-stat-val">150</span>
+          </div>
+          <div class="ds-stat">
+            <span class="ds-stat-label">Difficulty split</span>
+            <div class="diff-row">
+              <span class="diff-pill diff-easy">40 easy</span>
+              <span class="diff-pill diff-med">50 medium</span>
+              <span class="diff-pill diff-hard">60 hard</span>
+            </div>
+          </div>
+          <div class="ds-stat">
+            <span class="ds-stat-label">Models evaluated</span>
+            <span class="ds-stat-val">16</span>
+          </div>
+          <div class="ds-stat">
+            <span class="ds-stat-label">Few-shot examples per problem</span>
+            <span class="ds-stat-val">6</span>
+          </div>
+          <div class="ds-stat">
+            <span class="ds-stat-label">Unique languages generated</span>
+            <span class="ds-stat-val">150</span>
+          </div>
+          <div class="ds-stat">
+            <span class="ds-stat-label">Vocabulary tokens remapped</span>
+            <span class="ds-stat-val">191+</span>
+          </div>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:.7rem;flex-wrap:wrap;">
+          <a href="https://kaggle.com/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank" class="btn btn-out" style="font-size:.78rem">↗ Kaggle Dataset</a>
+          <a href="https://huggingface.co/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank" class="btn btn-tl" style="font-size:.78rem">↗ Hugging Face</a>
+        </div>
       </div>
-      <div class="mc">
-        <div class="mc-step">Step 02 · Prompt Construction</div>
-        <div class="mc-t">6-shot in-context language pairs</div>
-        <p class="mc-b">The model receives 6 few-shot example pairs (synthetic ↔ Python), then the problem statement. It must produce a <code>&lt;solution&gt;</code> block in the synthetic language. The Python Baseline prompt is identical but requests Python, with no few-shot pairs.</p>
+      <div>
+        <div class="ds-table-wrap">
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code style="font-family:var(--mono);font-size:.78em">question_id</code></td><td style="color:var(--ink3);font-size:.8rem">string</td><td style="font-size:.8rem;color:var(--ink2)">AtCoder problem ID</td></tr>
+              <tr><td><code style="font-family:var(--mono);font-size:.78em">question_content</code></td><td style="color:var(--ink3);font-size:.8rem">string</td><td style="font-size:.8rem;color:var(--ink2)">Problem statement</td></tr>
+              <tr><td><code style="font-family:var(--mono);font-size:.78em">difficulty</code></td><td style="color:var(--ink3);font-size:.8rem">string</td><td style="font-size:.8rem;color:var(--ink2)">easy / medium / hard</td></tr>
+              <tr><td><code style="font-family:var(--mono);font-size:.78em">all_tests</code></td><td style="color:var(--ink3);font-size:.8rem">list[dict]</td><td style="font-size:.8rem;color:var(--ink2)">Public + private test cases</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="mc">
-        <div class="mc-step">Step 03 · Extraction & Validation</div>
-        <div class="mc-t">Deterministic back-translation pipeline</div>
-        <p class="mc-b">Responses are checked for <code>&lt;solution&gt;</code> tags, falling back to the last fenced code block. Extracted code is scanned for Python token leaks, back-translated to Python, compiled, and executed against all test cases with a 30-second timeout.</p>
-      </div>
-      <div class="mc">
-        <div class="mc-step">Step 04 · Scoring</div>
-        <div class="mc-t">All-or-nothing, no LLM judge</div>
-        <p class="mc-b">A problem is correct only if <em>all</em> test cases pass. Final score = <code>passed / total</code> ∈ [0, 1]. Learning Tax = <code>baseline − core</code>. No LLM judge is used anywhere — the benchmark is fully objective.</p>
-      </div>
-    </div>
-
-    <div class="sn" style="margin-bottom:.85rem;">Outcome Codes</div>
-    <div class="oc-grid">
-      <div class="oc oc-p"><span class="oc-code">PASS</span><span class="oc-desc">All test cases passed</span></div>
-      <div class="oc oc-l"><span class="oc-code">PYTHON_LEAK</span><span class="oc-desc">Python tokens in synthetic output</span></div>
-      <div class="oc oc-s"><span class="oc-code">SYNTAX_ERROR</span><span class="oc-desc">Back-translated Python won't compile</span></div>
-      <div class="oc oc-r"><span class="oc-code">RUNTIME_ERROR</span><span class="oc-desc">Compiled but crashed at runtime</span></div>
-      <div class="oc oc-w"><span class="oc-code">WRONG_ANSWER</span><span class="oc-desc">Ran but produced wrong output</span></div>
-      <div class="oc oc-n"><span class="oc-code">NO_CODE</span><span class="oc-desc">No extractable code in response</span></div>
     </div>
   </div>
 </section>
 
-<!-- RESULTS -->
-<section class="re-bg" id="results">
+<!-- RESULTS CHARTS -->
+<section id="results">
   <div class="container sp">
-    <div class="sh">
-      <div class="sn">§ 3 — Results</div>
-      <h2>Performance across 16 models</h2>
-      <p class="sl">Core scores range from 88% to 0.7%. A clear two-tier split exists between models that learn and models that memorise.</p>
-    </div>
+    <div class="sec-label">Results</div>
+    <h2>Core scores range from 88% to 0.7%</h2>
+    <p class="lead">High performance on the Python baseline does not imply a low learning tax. The gap between what models can do in Python and what they can do after in-context learning reveals who truly learns.</p>
 
-    <div class="ch">
-      <div class="fig">Figure 1</div>
-      <div class="ct">Core Score vs Python Baseline</div>
-      <p class="cc">Green = Python Baseline; Blue = Synthetic Core. The gap between them is the Learning Tax. Ranked by Core score descending.</p>
-      <div class="cw"><img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/charts/chart_core_vs_baseline.png" alt="Core vs Baseline" /></div>
-    </div>
-
-    <div class="two">
-      <div class="ch" style="margin-bottom:0;">
-        <div class="fig">Figure 2</div>
-        <div class="ct">Learning Tax per Model</div>
-        <p class="cc">Lower is better. Green &lt;15% = strong learner. Only two models clear this threshold.</p>
-        <div class="cw"><img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/charts/chart_learning_tax.png" alt="Learning Tax" /></div>
+    <div class="charts-grid">
+      <div class="chart-card full">
+        <div class="chart-title">Core Score vs. Python Baseline</div>
+        <div class="chart-sub">Ranked by core score. Lower baseline gap = better in-context learning.</div>
+        <div class="chart-wrap" style="height:340px">
+          <canvas id="chartCoreBaseline"></canvas>
+        </div>
       </div>
-      <div class="ch" style="margin-bottom:0;">
-        <div class="fig">Figure 3</div>
-        <div class="ct">Per-Difficulty Breakdown (Core)</div>
-        <p class="cc">11 of 16 models score under 10% on hard problems — the most discriminating tier.</p>
-        <div class="cw"><img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/charts/chart_difficulty_analysis.png" alt="Difficulty breakdown" /></div>
+      <div class="chart-card">
+        <div class="chart-title">Learning Tax</div>
+        <div class="chart-sub">Baseline − Core (lower is better). Under 15% = genuine learning.</div>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="chartTax"></canvas>
+        </div>
       </div>
-    </div>
-
-    <div class="ch" style="margin-top:3rem;">
-      <div class="fig">Figure 4</div>
-      <div class="ct">Failure Mode Breakdown</div>
-      <p class="cc">PYTHON_LEAK (red) dominates 14 of 16 models. SYNTAX_ERROR is prominent in Gemini 2.5 Pro and Claude Haiku 4.5, indicating partial but failed language internalisation.</p>
-      <div class="cw"><img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/charts/chart_failure_modes.png" alt="Failure modes" /></div>
-    </div>
-
-    <div class="two" style="margin-top:2.5rem;">
-      <div class="ch" style="margin-bottom:0;">
-        <div class="fig">Figure 5</div>
-        <div class="ct">Core Score vs Cost</div>
-        <p class="cc">Bubble = USD cost. Gemini 3 Flash Preview offers the best cost-performance of any competitive model.</p>
-        <div class="cw"><img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/charts/chart_cost_performance.png" alt="Cost vs score" /></div>
+      <div class="chart-card">
+        <div class="chart-title">Per-Difficulty Performance (Core)</div>
+        <div class="chart-sub">Top 8 models. Hard problems are the most discriminating tier.</div>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="chartDifficulty"></canvas>
+        </div>
       </div>
-      <div class="ch" style="margin-bottom:0;">
-        <div class="fig">Figure 6</div>
-        <div class="ct">Failure Mode Counts (Raw)</div>
-        <p class="cc">GPT-5.4 Nano: 130 PYTHON_LEAK out of 150 problems — 87% of responses revert to Python.</p>
-        <div class="cw"><img src="https://raw.githubusercontent.com/namanbnsl/RosettaBench/refs/heads/main/assets/charts/failure_mode_table.png" alt="Failure mode table" /></div>
+      <div class="chart-card">
+        <div class="chart-title">Cost vs. Core Performance</div>
+        <div class="chart-sub">Core API cost ($) vs. core score. Bubble size = learning tax.</div>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="chartCost"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Dominant Failure Modes</div>
+        <div class="chart-sub">Most failures come from PYTHON_LEAK — models revert to memorised syntax.</div>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="chartFailure"></canvas>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- LEADERBOARD -->
-<section class="lb-bg" id="leaderboard">
+<section id="leaderboard">
   <div class="container sp">
-    <div class="sh">
-      <div class="sn">§ 4 — Leaderboard</div>
-      <h2>Full Rankings</h2>
-      <p class="sl">Ranked by Core score. Learning Tax = Baseline − Core. <span style="color:#1e7a46;font-weight:600;">Green</span> &lt;15% · <span style="color:var(--gold);font-weight:600;">Orange</span> 15–50% · <span style="color:var(--red);font-weight:600;">Red</span> &gt;50%</p>
+    <div class="sec-label">Leaderboard</div>
+    <h2>All 16 models ranked</h2>
+    <p class="lead">Ranked by core score by default. Click any column header to sort. Learning Tax = baseline − core (lower is better).</p>
+
+    <div class="lb-controls">
+      <span class="lb-sort-label">Sort by:</span>
+      <button class="sort-btn active" data-col="core">Core Score</button>
+      <button class="sort-btn" data-col="baseline">Baseline</button>
+      <button class="sort-btn" data-col="tax">Learning Tax</button>
+      <button class="sort-btn" data-col="cost">Core Cost</button>
     </div>
-    <div class="tw">
-      <table>
+
+    <div class="lb-table-wrap">
+      <table id="lb-table">
         <thead>
           <tr>
-            <th>#</th><th>Model</th><th>Core ↓</th><th>Baseline</th><th>Learning Tax</th><th>Core Cost</th><th>Baseline Cost</th>
+            <th data-col="rank" style="width:50px">Rank <span class="sort-arrow">↕</span></th>
+            <th data-col="model">Model <span class="sort-arrow">↕</span></th>
+            <th data-col="core">Core <span class="sort-arrow">↓</span></th>
+            <th data-col="baseline">Baseline <span class="sort-arrow">↕</span></th>
+            <th data-col="tax">Learning Tax <span class="sort-arrow">↕</span></th>
+            <th data-col="easy">Easy <span class="sort-arrow">↕</span></th>
+            <th data-col="medium">Medium <span class="sort-arrow">↕</span></th>
+            <th data-col="hard">Hard <span class="sort-arrow">↕</span></th>
+            <th data-col="cost">Core Cost <span class="sort-arrow">↕</span></th>
           </tr>
         </thead>
-        <tbody>
-          <tr class="r1"><td class="rk">1</td><td class="mn">Gemini 3.1 Pro Preview</td><td class="sc">88.0%</td><td>95.0%</td><td class="tg">7.0%</td><td>$21.26</td><td>$13.05</td></tr>
-          <tr><td class="rk">2</td><td class="mn">Gemini 3 Flash Preview</td><td class="sc">80.7%</td><td>91.0%</td><td class="tg">10.3%</td><td>$9.20</td><td>$8.11</td></tr>
-          <tr><td class="rk">3</td><td class="mn">Claude Sonnet 4.6</td><td class="sc">44.7%</td><td>85.0%</td><td class="tm">40.3%</td><td>$4.20</td><td>$3.50</td></tr>
-          <tr><td class="rk">4</td><td class="mn">Claude Opus 4.6</td><td class="sc">40.7%</td><td>91.0%</td><td class="tb">50.3%</td><td>$6.14</td><td>$4.31</td></tr>
-          <tr><td class="rk">5</td><td class="mn">GPT-5.4</td><td class="sc">29.3%</td><td>75.0%</td><td class="tm">45.7%</td><td>$1.71</td><td>$0.90</td></tr>
-          <tr><td class="rk">6</td><td class="mn">Gemini 2.5 Flash</td><td class="sc">26.0%</td><td>67.0%</td><td class="tm">41.0%</td><td>$3.96</td><td>$4.35</td></tr>
-          <tr><td class="rk">7</td><td class="mn">Claude Haiku 4.5</td><td class="sc">25.3%</td><td>79.0%</td><td class="tb">53.7%</td><td>$1.06</td><td>$0.72</td></tr>
-          <tr><td class="rk">8</td><td class="mn">Gemini 2.5 Pro</td><td class="sc">24.0%</td><td>78.0%</td><td class="tb">54.0%</td><td>$17.58</td><td>$23.79</td></tr>
-          <tr><td class="rk">9</td><td class="mn">DeepSeek R1</td><td class="sc">15.3%</td><td>77.0%</td><td class="tb">61.7%</td><td>$11.64</td><td>$10.57</td></tr>
-          <tr><td class="rk">10</td><td class="mn">DeepSeek V3</td><td class="sc">15.3%</td><td>74.0%</td><td class="tb">58.7%</td><td>$0.31</td><td>$0.28</td></tr>
-          <tr><td class="rk">11</td><td class="mn">Qwen3 Coder 480B</td><td class="sc">13.3%</td><td>69.0%</td><td class="tb">55.7%</td><td>$0.17</td><td>$0.20</td></tr>
-          <tr><td class="rk">12</td><td class="mn">Gemini 3.1 Flash Lite Preview</td><td class="sc">8.7%</td><td>80.0%</td><td class="tb">71.3%</td><td>$0.28</td><td>$0.15</td></tr>
-          <tr><td class="rk">13</td><td class="mn">Qwen3 235B</td><td class="sc">8.0%</td><td>68.0%</td><td class="tb">60.0%</td><td>$0.13</td><td>$0.23</td></tr>
-          <tr><td class="rk">14</td><td class="mn">GPT-5.4 Mini</td><td class="sc">4.7%</td><td>63.0%</td><td class="tb">58.3%</td><td>$0.50</td><td>$0.32</td></tr>
-          <tr><td class="rk">15</td><td class="mn">Gemma 3 27B</td><td class="sc">3.3%</td><td>32.0%</td><td class="tm">28.7%</td><td>$0.03</td><td>$0.01</td></tr>
-          <tr><td class="rk">16</td><td class="mn">GPT-5.4 Nano</td><td class="sc">0.7%</td><td>70.0%</td><td class="tb">69.3%</td><td>$0.15</td><td>$0.16</td></tr>
-        </tbody>
+        <tbody id="lb-body"></tbody>
       </table>
     </div>
   </div>
 </section>
 
 <!-- INSIGHTS -->
-<section class="in-bg" id="insights">
+<section id="insights">
   <div class="container sp">
-    <div class="sh">
-      <div class="sn">§ 5 — Insights</div>
-      <h2>What the data reveals</h2>
+    <div class="sec-label">Key Insights</div>
+    <h2>What the data reveals</h2>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-tag">Hard problems</div>
+        <h3>The most discriminating tier</h3>
+        <p><strong>11 of 16 models score under 10% on hard problems.</strong> Hard problems require language acquisition and algorithmic ability simultaneously — models cannot compensate for language failure with pattern-matching alone.</p>
+      </div>
+      <div class="insight-card">
+        <div class="insight-tag">Failure modes</div>
+        <h3>Memorisers revert to Python</h3>
+        <p><strong>PYTHON_LEAK is the dominant failure mode</strong> across 14 of 16 models. Models abandon the synthetic language and fall back on memorised Python tokens — the clearest signal of memorisation over learning.</p>
+      </div>
+      <div class="insight-card">
+        <div class="insight-tag">Gemini exception</div>
+        <h3>Only 2 models truly learn</h3>
+        <p><strong>Gemini 3.1 Pro Preview (7%) and Gemini 3 Flash Preview (10.3%)</strong> are the only models with learning tax under 15%. Every other model loses at least 40 percentage points moving from Python to synthetic.</p>
+      </div>
+      <div class="insight-card">
+        <div class="insight-tag">Case study: abc357_b</div>
+        <h3>Memorisers assume, learners adapt</h3>
+        <p>Problem <em>abc357_b</em> required uppercase conversion, but the few-shot examples only demonstrated <code style="font-family:var(--mono);font-size:.85em;background:var(--paper3);padding:.1em .3em;border-radius:2px">.lower()</code>. Every model except Gemini 3 Flash and 3.1 Pro hallucinated a <code style="font-family:var(--mono);font-size:.85em;background:var(--paper3);padding:.1em .3em;border-radius:2px">.upper()</code> token. The two exceptions used <code style="font-family:var(--mono);font-size:.85em;background:var(--paper3);padding:.1em .3em;border-radius:2px">.lower()</code> with a character map, staying within the demonstrated vocabulary.</p>
+      </div>
     </div>
-    <div class="in-grid">
-      <div class="ic ft">
-        <div class="ic-tag">★ Central Finding</div>
-        <div class="ic-t">Memorisers assume. Learners adapt.</div>
-        <p class="ic-b">Problem <code>abc357_b</code> required uppercase conversion — but the few-shot examples only demonstrated <code>.lower()</code>. Every model except Gemini 3.1 Pro Preview and Gemini 3 Flash Preview hallucinated a synthetic <code>.upper()</code> token, reverting to Python muscle memory rather than reasoning from demonstrated vocabulary. The two exceptions used <code>.lower()</code> with a character map — adapting within the given language instead of assuming beyond it. This wasn't an algorithmic failure. It was the inability to suppress memorised patterns in favour of what was actually taught in context.</p>
-      </div>
-      <div class="ic">
-        <div class="ic-tag">Insight 01</div>
-        <div class="ic-t">A genuine two-tier split</div>
-        <p class="ic-b">Gemini 3.1 Pro Preview (7.0% tax) and Gemini 3 Flash Preview (10.3%) are in a class of their own. Every other model loses at least 28 percentage points — most exceed 50%. The gap is not a continuum; it is a discontinuity between models that learn and models that memorise.</p>
-      </div>
-      <div class="ic">
-        <div class="ic-tag">Insight 02</div>
-        <div class="ic-t">Baseline score is misleading</div>
-        <p class="ic-b">High Python performance does not imply learning ability. GPT-5.4 Nano: 70% on Python, 0.7% on core. Gemini 3.1 Flash Lite: 80% baseline, 8.7% core — a 71.3% tax. Existing benchmarks systematically overrate models that are merely pattern-matching.</p>
-      </div>
-      <div class="ic">
-        <div class="ic-tag">Insight 03</div>
-        <div class="ic-t">Hard problems are the discriminator</div>
-        <p class="ic-b">11 of 16 models score under 10% on hard problems. Hard tasks demand simultaneous language acquisition and algorithmic reasoning — a double bind that exposes the true boundary between cognition and recall.</p>
-      </div>
-      <div class="ic">
-        <div class="ic-tag">Insight 04</div>
-        <div class="ic-t">PYTHON_LEAK reveals the mechanism</div>
-        <p class="ic-b">Models don't simply fail — they revert. PYTHON_LEAK's dominance shows that pre-trained token distributions overpower in-context instruction. SYNTAX_ERROR in Gemini 2.5 Pro and Claude Haiku 4.5 tells a different story: partial acquisition without grammatical internalisation.</p>
-      </div>
+    <div class="callout">
+      <p><strong>Conclusion:</strong> RosettaBench demonstrates that strong existing benchmark performance does not imply the ability to learn. Measuring this gap is essential for tracking real progress toward AGI. The models didn't fail due to weak coding ability — they failed because they relied on memorisation instead of learning.</p>
     </div>
   </div>
 </section>
 
-<!-- RESOURCES -->
-<section class="rs-bg" id="links">
+<!-- REFERENCES -->
+<section>
   <div class="container sp">
-    <div class="sh">
-      <div class="sn">§ 6 — Resources</div>
-      <h2>Access the benchmark</h2>
-    </div>
-    <div class="rs-grid">
-      <a class="rc" href="https://kaggle.com/benchmarks/namanbnsl/rosetta" target="_blank">
-        <div class="rc-pl">Kaggle · Benchmark</div>
-        <div class="rc-t">RosettaBench</div>
-        <div class="rc-d">Full writeup, benchmark evaluation notebooks, and competition results.</div>
-        <div class="rc-ar">↗ Open</div>
-      </a>
-      <a class="rc" href="https://huggingface.co/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank">
-        <div class="rc-pl">Hugging Face · Dataset</div>
-        <div class="rc-t">RosettaBench-150</div>
-        <div class="rc-d">Stratified compressed dataset of 150 AtCoder problems with full test cases.</div>
-        <div class="rc-ar">↗ Open</div>
-      </a>
-      <a class="rc" href="https://www.kaggle.com/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank">
-        <div class="rc-pl">Kaggle · Dataset</div>
-        <div class="rc-t">Dataset Mirror</div>
-        <div class="rc-d">Kaggle-hosted version. Usability 8.8. Includes dataset builder notebook.</div>
-        <div class="rc-ar">↗ Open</div>
-      </a>
-    </div>
-    <div class="cite-block">
-      <div class="cite-label">Citation</div>
-      <pre class="cite-text">namanbnsl. RosettaBench.
-https://www.kaggle.com/competitions/kaggle-measuring-agi/writeups/rosettabench. 2026. Kaggle</pre>
-    </div>
+    <div class="sec-label">References</div>
+    <ul class="refs-list">
+      <li>
+        <span class="ref-num">1</span>
+        <div class="ref-text">Jain, N., Han, K., et al. (2024). <em>LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code.</em> arXiv:2403.07974. <a href="https://arxiv.org/abs/2403.07974" target="_blank">arxiv.org/abs/2403.07974</a></div>
+      </li>
+      <li>
+        <span class="ref-num">2</span>
+        <div class="ref-text">Burnell, R., Kelly, O., et al. (2026). <em>Measuring Progress Toward AGI: A Cognitive Taxonomy.</em> Google DeepMind. <a href="https://storage.googleapis.com/deepmind-media/DeepMind/Blog/measuring-progress-toward-agi/measuring-progress-toward-agi-a-cognitive-framework.pdf" target="_blank">deepmind.com</a></div>
+      </li>
+      <li>
+        <span class="ref-num">3</span>
+        <div class="ref-text">Paech, S. (2024). <em>livecodebench-code_generation_lite</em> [Dataset]. Hugging Face. <a href="https://huggingface.co/datasets/sam-paech/livecodebench_code_generation_lite" target="_blank">huggingface.co</a></div>
+      </li>
+      <li>
+        <span class="ref-num">4</span>
+        <div class="ref-text">AtCoder. <a href="https://atcoder.jp" target="_blank">atcoder.jp</a></div>
+      </li>
+    </ul>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <div class="container">
-    <div class="ft-in">
-      <div class="ft-brand">
-        <strong>RosettaBench</strong>
-        <span>namanbnsl · Independent · 2026 · CC0 Public Domain</span>
-      </div>
-      <div class="ft-refs">
-        Jain et al. · <a href="https://arxiv.org/abs/2403.07974" target="_blank">LiveCodeBench (arXiv:2403.07974)</a><br />
-        Burnell et al. · <a href="https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/measuring-progress-toward-agi/measuring-progress-toward-agi-a-cognitive-framework.pdf" target="_blank">DeepMind Cognitive Framework</a><br />
-        <a href="https://atcoder.jp" target="_blank">AtCoder</a> · <a href="https://huggingface.co/datasets/sam-paech/livecodebench-code_generation_lite" target="_blank">LiveCodeBench-Lite Dataset</a>
-      </div>
-    </div>
+  <div class="footer-brand">RosettaBench · 2026</div>
+  <div class="footer-links">
+    <a href="https://github.com/namanbnsl/RosettaBench" target="_blank">GitHub</a>
+    <a href="https://kaggle.com/benchmarks/namanbnsl/rosetta" target="_blank">Kaggle Benchmark</a>
+    <a href="https://huggingface.co/datasets/namanbnsl/rosettabench-150-stratified-compressed" target="_blank">Hugging Face</a>
   </div>
 </footer>
 
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const MODELS = [
+  { rank:1,  model:"Gemini 3.1 Pro Preview",         core:88.0, baseline:95.0, tax:7.0,  easy:98, medium:84, hard:85, cost:21.26, baseCost:13.05 },
+  { rank:2,  model:"Gemini 3 Flash Preview",          core:80.7, baseline:91.0, tax:10.3, easy:98, medium:80, hard:70, cost:9.20,  baseCost:8.11  },
+  { rank:3,  model:"Claude Sonnet 4.6",               core:44.7, baseline:85.0, tax:40.3, easy:82, medium:42, hard:22, cost:4.20,  baseCost:3.50  },
+  { rank:4,  model:"Claude Opus 4.6",                 core:40.7, baseline:91.0, tax:50.3, easy:72, medium:40, hard:20, cost:6.14,  baseCost:4.31  },
+  { rank:5,  model:"GPT-5.4",                         core:29.3, baseline:75.0, tax:45.7, easy:60, medium:32, hard:7,  cost:1.71,  baseCost:0.90  },
+  { rank:6,  model:"Gemini 2.5 Flash",                core:26.0, baseline:67.0, tax:41.0, easy:62, medium:20, hard:7,  cost:3.96,  baseCost:4.35  },
+  { rank:7,  model:"Claude Haiku 4.5",                core:25.3, baseline:79.0, tax:53.7, easy:57, medium:18, hard:10, cost:1.06,  baseCost:0.72  },
+  { rank:8,  model:"Gemini 2.5 Pro",                  core:24.0, baseline:78.0, tax:54.0, easy:55, medium:22, hard:5,  cost:17.58, baseCost:23.79 },
+  { rank:9,  model:"DeepSeek R1",                     core:15.3, baseline:77.0, tax:61.7, easy:38, medium:12, hard:3,  cost:11.64, baseCost:10.57 },
+  { rank:10, model:"DeepSeek V3",                     core:15.3, baseline:74.0, tax:58.7, easy:42, medium:6,  hard:5,  cost:0.31,  baseCost:0.28  },
+  { rank:11, model:"Qwen3 Coder 480B",                core:13.3, baseline:69.0, tax:55.7, easy:40, medium:6,  hard:2,  cost:0.17,  baseCost:0.20  },
+  { rank:12, model:"Gemini 3.1 Flash Lite Preview",   core:8.7,  baseline:80.0, tax:71.3, easy:25, medium:6,  hard:0,  cost:0.28,  baseCost:0.15  },
+  { rank:13, model:"Qwen3 235B",                      core:8.0,  baseline:68.0, tax:60.0, easy:22, medium:4,  hard:2,  cost:0.13,  baseCost:0.23  },
+  { rank:14, model:"GPT-5.4 Mini",                    core:4.7,  baseline:63.0, tax:58.3, easy:18, medium:0,  hard:0,  cost:0.50,  baseCost:0.32  },
+  { rank:15, model:"Gemma 3 27B",                     core:3.3,  baseline:32.0, tax:28.7, easy:12, medium:0,  hard:0,  cost:0.03,  baseCost:0.01  },
+  { rank:16, model:"GPT-5.4 Nano",                    core:0.7,  baseline:70.0, tax:69.3, easy:2,  medium:0,  hard:0,  cost:0.15,  baseCost:0.16  },
+];
+
+// ─── CHART DEFAULTS ──────────────────────────────────────────────────────────
+Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#7a7469';
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.padding = 12;
+
+const TEAL  = '#2a7c6f';
+const TEAL2 = 'rgba(42,124,111,.18)';
+const INK3  = '#7a7469';
+const INK3A = 'rgba(122,116,105,.4)';
+const RED   = '#c0392b';
+const GOLD  = '#b5860d';
+const BLUE  = '#2563eb';
+const PURPLE = '#7c3aed';
+const ORANGE = '#c2410c';
+
+// ─── CHART 1: Core vs Baseline ───────────────────────────────────────────────
+(function() {
+  const labels = MODELS.map(m => m.model.replace(' Preview', '').replace(' Instruct)', '').split(' ').slice(0,4).join(' '));
+  new Chart(document.getElementById('chartCoreBaseline'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Core Score',
+          data: MODELS.map(m => m.core),
+          backgroundColor: TEAL,
+          borderRadius: 3,
+          barPercentage: 0.55,
+          categoryPercentage: 0.8,
+        },
+        {
+          label: 'Python Baseline',
+          data: MODELS.map(m => m.baseline),
+          backgroundColor: INK3A,
+          borderRadius: 3,
+          barPercentage: 0.55,
+          categoryPercentage: 0.8,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 30, font: { size: 10 } } },
+        y: {
+          min: 0, max: 100,
+          ticks: { callback: v => v + '%' },
+          grid: { color: 'rgba(0,0,0,.05)' }
+        }
+      }
+    }
+  });
+})();
+
+// ─── CHART 2: Learning Tax ───────────────────────────────────────────────────
+(function() {
+  const sorted = [...MODELS].sort((a,b) => a.tax - b.tax);
+  const labels = sorted.map(m => m.model.split(' ').slice(0,3).join(' '));
+  const colors = sorted.map(m => m.tax < 15 ? TEAL : m.tax < 40 ? GOLD : RED);
+  new Chart(document.getElementById('chartTax'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Learning Tax',
+        data: sorted.map(m => m.tax),
+        backgroundColor: colors,
+        borderRadius: 3,
+        barPercentage: 0.7,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `Tax: ${ctx.parsed.x}pp` } }
+      },
+      scales: {
+        x: {
+          min: 0, max: 80,
+          ticks: { callback: v => v + 'pp' },
+          grid: { color: 'rgba(0,0,0,.05)' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 10 } }
+        }
+      }
+    }
+  });
+})();
+
+// ─── CHART 3: Per-Difficulty ─────────────────────────────────────────────────
+(function() {
+  const top8 = MODELS.slice(0, 8);
+  const labels = top8.map(m => m.model.split(' ').slice(0,3).join(' '));
+  new Chart(document.getElementById('chartDifficulty'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Easy',   data: top8.map(m=>m.easy),   backgroundColor: TEAL,   borderRadius:2, barPercentage:.6, categoryPercentage:.85 },
+        { label: 'Medium', data: top8.map(m=>m.medium), backgroundColor: GOLD,   borderRadius:2, barPercentage:.6, categoryPercentage:.85 },
+        { label: 'Hard',   data: top8.map(m=>m.hard),   backgroundColor: RED,    borderRadius:2, barPercentage:.6, categoryPercentage:.85 },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 35, font: { size: 9 } } },
+        y: { min:0, max:100, ticks: { callback: v => v+'%' }, grid: { color:'rgba(0,0,0,.05)' } }
+      }
+    }
+  });
+})();
+
+// ─── CHART 4: Cost vs Core ───────────────────────────────────────────────────
+(function() {
+  const data = MODELS.map(m => ({
+    x: m.cost,
+    y: m.core,
+    r: Math.max(4, m.tax / 5),
+    label: m.model,
+    tax: m.tax,
+  }));
+  new Chart(document.getElementById('chartCost'), {
+    type: 'bubble',
+    data: {
+      datasets: [{
+        label: 'Models',
+        data,
+        backgroundColor: data.map(d => d.tax < 15 ? 'rgba(42,124,111,.7)' : d.tax < 40 ? 'rgba(181,134,13,.6)' : 'rgba(192,57,43,.6)'),
+        borderColor: data.map(d => d.tax < 15 ? TEAL : d.tax < 40 ? GOLD : RED),
+        borderWidth: 1.5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = ctx.raw;
+              return [`${d.label}`, `Core: ${d.y}%`, `Cost: $${d.x}`, `Tax: ${d.tax}pp`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title: { display:true, text:'Core API Cost ($)', font:{size:10} }, grid:{color:'rgba(0,0,0,.05)'}, ticks:{callback:v=>'$'+v} },
+        y: { min:0, max:100, title:{display:true, text:'Core Score (%)', font:{size:10}}, ticks:{callback:v=>v+'%'}, grid:{color:'rgba(0,0,0,.05)'} }
+      }
+    }
+  });
+})();
+
+// ─── CHART 5: Failure Modes ──────────────────────────────────────────────────
+(function() {
+  // Estimated failure mode dominance per model (representative approximation from writeup)
+  const failureData = [
+    { model: 'Gemini 3.1 Pro',   pass:132, leak:5,  syntax:5,  runtime:4,  wa:4  },
+    { model: 'Gemini 3 Flash',   pass:121, leak:8,  syntax:9,  runtime:6,  wa:6  },
+    { model: 'Claude Sonnet 4.6',pass:67,  leak:55, syntax:12, runtime:8,  wa:8  },
+    { model: 'Claude Opus 4.6',  pass:61,  leak:50, syntax:18, runtime:10, wa:11 },
+    { model: 'GPT-5.4',          pass:44,  leak:72, syntax:14, runtime:10, wa:10 },
+    { model: 'Gemini 2.5 Flash', pass:39,  leak:75, syntax:16, runtime:10, wa:10 },
+    { model: 'Claude Haiku 4.5', pass:38,  leak:79, syntax:33, runtime:0,  wa:0  },
+    { model: 'Gemini 2.5 Pro',   pass:36,  leak:46, syntax:68, runtime:0,  wa:0  },
+  ];
+  const labels = failureData.map(d => d.model);
+  new Chart(document.getElementById('chartFailure'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'Pass',         data:failureData.map(d=>d.pass),    backgroundColor:TEAL,   borderRadius:2, stack:'s' },
+        { label:'Python Leak',  data:failureData.map(d=>d.leak),    backgroundColor:RED,    borderRadius:0, stack:'s' },
+        { label:'Syntax Error', data:failureData.map(d=>d.syntax),  backgroundColor:GOLD,   borderRadius:0, stack:'s' },
+        { label:'Runtime/WA',   data:failureData.map(d=>d.runtime+d.wa), backgroundColor:BLUE, borderRadius:0, stack:'s' },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position:'top' } },
+      scales: {
+        x: { stacked:true, grid:{display:false}, ticks:{maxRotation:35, font:{size:9}} },
+        y: { stacked:true, max:150, ticks:{callback:v=>v}, grid:{color:'rgba(0,0,0,.05)'}, title:{display:true, text:'Problems (of 150)', font:{size:10}} }
+      }
+    }
+  });
+})();
+
+// ─── LEADERBOARD ─────────────────────────────────────────────────────────────
+let currentSort = 'core';
+let sortAsc = false;
+
+function taxClass(tax) {
+  if (tax < 15) return 'tax-low';
+  if (tax < 50) return 'tax-mid';
+  return 'tax-high';
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('lb-body');
+  tbody.innerHTML = '';
+  data.forEach((m, i) => {
+    const displayRank = i + 1;
+    const rankClass = displayRank === 1 ? 'rank-1' : displayRank === 2 ? 'rank-2' : displayRank === 3 ? 'rank-3' : '';
+    const isTop2 = m.rank <= 2;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="rank-cell ${rankClass}">${displayRank}</td>
+      <td class="model-cell">${m.model}${isTop2 ? '<span class="badge-top2">learner</span>' : ''}</td>
+      <td class="score-cell">
+        <div class="score-bar-wrap">
+          <div class="score-bar bar-core" style="width:${m.core}px;max-width:80px;min-width:2px"></div>
+          <span>${m.core}%</span>
+        </div>
+      </td>
+      <td class="score-cell">
+        <div class="score-bar-wrap">
+          <div class="score-bar bar-base" style="width:${m.baseline * 0.8}px;max-width:80px;min-width:2px"></div>
+          <span>${m.baseline}%</span>
+        </div>
+      </td>
+      <td class="score-cell tax-cell ${taxClass(m.tax)}">${m.tax > 0 ? '+' : ''}${m.tax}pp</td>
+      <td class="score-cell">${m.easy}%</td>
+      <td class="score-cell">${m.medium}%</td>
+      <td class="score-cell">${m.hard}%</td>
+      <td class="cost-cell">$${m.cost.toFixed(2)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sortAndRender(col) {
+  if (currentSort === col) {
+    sortAsc = !sortAsc;
+  } else {
+    currentSort = col;
+    sortAsc = (col === 'tax' || col === 'cost');
+  }
+
+  const sorted = [...MODELS].sort((a, b) => {
+    let av = a[col], bv = b[col];
+    return sortAsc ? av - bv : bv - av;
+  });
+
+  renderTable(sorted);
+
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.col === col);
+  });
+
+  document.querySelectorAll('th').forEach(th => {
+    const arrow = th.querySelector('.sort-arrow');
+    if (!arrow) return;
+    th.classList.toggle('sorted', th.dataset.col === col);
+    if (th.dataset.col === col) {
+      arrow.textContent = sortAsc ? '↑' : '↓';
+    } else {
+      arrow.textContent = '↕';
+    }
+  });
+}
+
+// Initial render
+renderTable(MODELS);
+
+// Sort buttons
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', () => sortAndRender(btn.dataset.col));
+});
+
+// Table header clicks
+document.querySelectorAll('#lb-table th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (col) sortAndRender(col);
+  });
+});
+
+// Smooth scroll for nav
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
 </body>
 </html>
